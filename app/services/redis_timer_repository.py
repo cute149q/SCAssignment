@@ -15,7 +15,10 @@ class RedisTimerRepository(TimerRepository):
 
     async def create_timer(self, timer: dict) -> dict:
         timer_id = timer["id"]
-        await self.redis_client.hset()
+        await self.redis_client.hset(
+            timer_id,
+            mapping=timer,
+        )
         return timer
 
     async def purge_timers(self):

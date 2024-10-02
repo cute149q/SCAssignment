@@ -14,6 +14,6 @@ class SetTimerRequest(BaseModel):
         return value
 
 
-class SetTimerResponse(BaseModel):
+class GetTimerResponse(BaseModel):
     id: str
     seconds_left: int
