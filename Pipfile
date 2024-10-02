@@ -6,7 +6,9 @@ name = "pypi"
 [packages]
 fastapi = "*"
 uuid = "*"
-pydantic = "*"
+pydantic = "~=2.9"
+pydantic_settings = "~=2.5.0"
+redis = "~=5.0.0"
 
 [dev-packages]
 pytest = "*"
