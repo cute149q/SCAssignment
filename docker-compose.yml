@@ -1,0 +1,55 @@
+version: "3.9"
+services:
+  cache:
+    image: redis:7-alpine
+    container_name: redis_cache
+    command: redis-server --save 20 1 --loglevel warning --port 6380
+    volumes:
+      - redis_data:/data
+    ports:
+      - 6380:6380
+    expose:
+      - 6380
+    healthcheck:
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+      test: [ "CMD", "redis-cli", "-p", "6380", "ping" ]
+
+  timer_api:
+    container_name: timer_api
+    command:
+      - "uvicorn"
+      - "app.main:app"
+      - "--host=0.0.0.0"
+      - "--port=8000"
+      - "--log-config=log_config.yaml"
+      - "--loop=uvloop"
+      - "--no-access-log"
+      - "--timeout-keep-alive=30"
+    build:
+      context: .
+    ports:
+      - "${TIMER_API_PORT}:${TIMER_API_PORT}"
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: "2048M"
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import http.client; import os; conn = http.client.HTTPConnection('0.0.0.0', int(os.environ['DATA_API_PORT'])); conn.request('GET', '/healthcheck'); exit(0) if conn.getresponse().status == 200 else exit(1);" ]
+      interval: 10s
+      timeout: 20s
+      retries: 5
+      start_period: 5s
+    environment:
+      - STAGE=${STAGE}
+      - TIMER_DB_ENDPOINT=cache
+      - TIMER_DB_PORT=6380
+      - TIMER_DB_SSL_ENABLED=false
+    depends_on:
+      - cache
+volumes:
+  redis_data:
+    external: false

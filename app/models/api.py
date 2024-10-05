@@ -1,4 +1,4 @@
-from typing import Generic, Sequence, TypeVar
+from typing import Any, Generic, Sequence, TypeVar
 
 from pydantic import BaseModel, Field
 
@@ -14,3 +14,9 @@ class ApiError(BaseModel):
 class ApiResponse(BaseModel, Generic[DataItem, ErrorItem]):
     errors: Sequence[ErrorItem] = Field(default_factory=list)
     data: Sequence[DataItem] = Field(default_factory=list)
+
+
+class ErrorResponse(BaseModel):
+    code: ErrorCode
+    message: str
+    detail: Any = Field(default=None)

@@ -9,6 +9,7 @@ uuid = "*"
 pydantic = "~=2.9"
 pydantic_settings = "~=2.5.0"
 redis = "~=5.0.0"
+uvicorn = {version = "~=0.30.1", extras = ["standard"]}
 
 [dev-packages]
 pytest = "*"

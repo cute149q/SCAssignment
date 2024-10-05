@@ -29,5 +29,9 @@ class DependenciesResolver:
     @classmethod
     def get_timer_repository(cls) -> RedisTimerRepository:
         return cls._get_deps().timer_repository
-    
 
+    @classmethod
+    async def destroy(cls) -> None:
+        if cls._dependencies is None:
+            return
+        cls._dependencies = None
