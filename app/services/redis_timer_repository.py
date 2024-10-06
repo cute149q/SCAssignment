@@ -1,6 +1,6 @@
-from app.repositories.timer_repo import TimerRepository
-
 from redis.asyncio.cluster import RedisCluster
+
+from app.repositories.timer_repo import TimerRepository
 
 
 class RedisTimerRepository(TimerRepository):

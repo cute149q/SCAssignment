@@ -1,6 +1,6 @@
 from redis.asyncio.cluster import RedisCluster
 
-from models.settings import AppSettings
+from app.models.settings import AppSettings
 
 DEFAULT_REDIS_TIMEOUT_SECONDS = 5
 

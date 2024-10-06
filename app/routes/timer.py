@@ -1,6 +1,7 @@
+import uuid
 from datetime import datetime, timezone
 from typing import Any
-import uuid
+
 from fastapi import APIRouter, Depends, Response
 
 from app.dependencies.timer_repo import get_timer_repo_service
@@ -8,9 +9,7 @@ from app.models.api import ApiResponse
 from app.models.timer import GetTimerResponse, SetTimerRequest
 from app.repositories.timer_repo import TimerRepository
 
-timer_router = APIRouter(
-    tags=["timer"],
-)
+timer_router = APIRouter()
 
 
 @timer_router.post("", response_model=ApiResponse[Any, Any])

@@ -1,0 +1,9 @@
+.keys
+.env
+.python-version
+.localstack
+rate_limit_config.json
+tests/performance/payload/*
+!tests/performance/payload/.gitkeep
+.pytest_cache
+.vscode

@@ -17,3 +17,4 @@ EXPOSE 8000
 COPY --from=python-deps /.venv /.venv
 ENV PATH="/.venv/bin:$PATH"
 COPY ./app ./app
+COPY ./log_config.yaml ./log_config.yaml

@@ -1,24 +1,19 @@
-from contextlib import asynccontextmanager
-from enum import Enum
 import logging
 import os
-import uuid
+from contextlib import asynccontextmanager
+from enum import Enum
+
 import fastapi
+from fastapi import Depends, FastAPI, status
 from fastapi.responses import JSONResponse
+
 from app.dependencies.dependencies_resolver import DependenciesResolver
 from app.dependencies.settings import get_app_settings
-from app.dependencies.timer_repo import get_timer_repo_service
 from app.models.settings import AppSettings
-from app.repositories.timer_repo import TimerRepository
-from models.timer import SetTimerRequest, GetTimerResponse
-from fastapi import Depends, FastAPI, Response
-from datetime import datetime, timezone
-from models.api import ApiResponse
-from typing import Any
-from routes.timer import timer_router
+from app.routes.timer import timer_router
 
 
-class Tag(Enum):
+class Tag(str, Enum):
     TIMER = "timer"
     HEALTHCHECK = "healthcheck"
 
@@ -50,8 +45,20 @@ app = fastapi.FastAPI(
 )
 
 
-@app.get("/healthcheck", tags=[Tag.HEALTHCHECK.value], include_in_schema=False)
-async def healthcheck():
-    return {"status": "ok"}
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
 
-app.include_router(timer_router, tags=Tag.TIMER, prefix="/timer")
+
+@app.get(
+    "/healthcheck",
+    tags=[Tag.HEALTHCHECK.value],
+    include_in_schema=False,
+    status_code=status.HTTP_200_OK,
+)
+async def healthcheck():
+    logger.info("Healthcheck OK")
+    return {"message": "OK"}
+
+
+app.include_router(timer_router, tags=[Tag.TIMER], prefix="/timer")

@@ -1,8 +1,9 @@
 from dataclasses import dataclass
-from app.dependencies.timer_repo_client import get_redis_db_client
-from app.services.redis_timer_repository import RedisTimerRepository
-from app.models.settings import AppSettings
 from typing import ClassVar, Self
+
+from app.dependencies.timer_repo_client import get_redis_db_client
+from app.models.settings import AppSettings
+from app.services.redis_timer_repository import RedisTimerRepository
 
 
 @dataclass
@@ -11,12 +12,11 @@ class Dependencies:
 
 
 class DependenciesResolver:
-
     _dependencies: ClassVar[Dependencies | None] = None
 
     @classmethod
-    async def init_dependencies(cls, settings: AppSettings) -> Self:
-        return cls(
+    async def init_dependencies(cls, settings: AppSettings) -> None:
+        cls._dependencies = Dependencies(
             timer_repository=RedisTimerRepository(redis_client=get_redis_db_client(settings)),
         )
 

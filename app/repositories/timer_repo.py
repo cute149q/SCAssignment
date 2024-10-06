@@ -10,6 +10,3 @@ class TimerRepository(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     async def purge_timers(self) -> None: ...
-
-
-

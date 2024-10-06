@@ -1,9 +1,20 @@
+from enum import Enum
 from typing import Any, Generic, Sequence, TypeVar
 
 from pydantic import BaseModel, Field
 
 DataItem = TypeVar("DataItem", bound=BaseModel)
 ErrorItem = TypeVar("ErrorItem", bound=BaseModel)
+
+
+class ErrorCode(str, Enum):
+    INVALID_REQUEST = "invalid_request"
+    NOT_FOUND = "not_found"
+    CONFLICT = "conflict"
+    THROTTLE = "throttle"
+    HTTP = "http"
+    UNKNOWN = "unknown"
+    SERVICE_UNAVAILABLE = "service_unavailable"
 
 
 class ApiError(BaseModel):

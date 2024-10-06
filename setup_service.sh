@@ -18,12 +18,20 @@ Help()
    echo
 }
 
+GenerateOpenApiJson()
+{
+    pipenv run python tests/utils/generate_openapi.py
+}
+
 export STAGE=dev
 export TIMER_API_PORT=8000
-export TIMER_API_URL="http://localstack:${TIMER_API_PORT}"
+export TIMER_API_URL="http://localhost:${TIMER_API_PORT}"
+export PYTHONPATH="$(pwd):${PYTHONPATH:-}"
+
 
 case  ${1:-} in
     up|build)
+    GenerateOpenApiJson
     echo "Bringing up the containers."
     BUILDARG=""
     if [[ ${1:-} = "build" ]]; then
