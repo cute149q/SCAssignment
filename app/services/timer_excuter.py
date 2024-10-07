@@ -90,14 +90,18 @@ class TimerExecutor:
         self.tasks[timer_task.timer_id] = task
 
     async def purge_all_tasks(self):
+        pop_keys = []
         for task_id, task in self.tasks.items():
             task.cancel()
             try:
                 await task
             except asyncio.CancelledError:
+                pop_keys.append(task_id)
                 pass
             except Exception as e:
                 self.logger.error(f"Failed to cancel task {task_id}: {e}")
+        for key in pop_keys:
+            self.tasks.pop(key)
 
     async def close(self):
         await self.http_session.close()

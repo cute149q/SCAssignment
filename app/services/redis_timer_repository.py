@@ -5,6 +5,8 @@ from redis.asyncio import Redis
 
 from app.repositories.timer_repo import TimerRepository
 
+TIMER_PREFIX = "timer#"
+
 
 class RedisTimerRepository(TimerRepository):
     def __init__(self, redis_client: Redis) -> None:
@@ -20,7 +22,8 @@ class RedisTimerRepository(TimerRepository):
 
     async def get_timer(self, timer_id: str) -> dict:
         self.logger.info(f"Getting timer with id {timer_id}")
-        timer = await self.redis_client.hgetall(timer_id)
+        timer = await self.redis_client.hgetall(f"{TIMER_PREFIX}{timer_id}")
+        self.logger.info(f"Retrieved timer: {timer}")
         if not timer:
             return None
         return timer
@@ -29,7 +32,7 @@ class RedisTimerRepository(TimerRepository):
         timer_id = timer["id"]
         self.logger.info(f"Received timer: {timer}")
         await self.redis_client.hset(
-            timer_id,
+            f"{TIMER_PREFIX}{timer_id}",
             mapping=timer,
         )
         return timer
