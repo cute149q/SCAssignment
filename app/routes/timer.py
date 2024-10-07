@@ -7,10 +7,11 @@ from typing import Any
 from fastapi import APIRouter, Depends, Response
 from pydantic import BaseModel
 
-from app.dependencies.timer_repo import get_timer_repo_service
+from app.dependencies.timer_repo import get_timer_executor_service, get_timer_repo_service
 from app.models.api import ApiResponse, ErrorCode, ErrorResponse
-from app.models.timer import GetTimerResponse, SetTimerRequest
+from app.models.timer import GetTimerResponse, SetTimerRequest, TimerTask
 from app.repositories.timer_repo import TimerRepository
+from app.services.timer_excuter import TimerExecutor
 
 timer_router = APIRouter()
 
@@ -29,6 +30,7 @@ async def set_timer(
     request: SetTimerRequest,
     response: Response,
     timer_repo: TimerRepository = Depends(get_timer_repo_service),
+    timer_executor: TimerExecutor = Depends(get_timer_executor_service),
 ) -> ApiResponse[dict, dict]:
     timer_id = str(uuid.uuid4())
     total_seconds = request.hours * 3600 + request.minutes * 60 + request.seconds
@@ -49,6 +51,7 @@ async def set_timer(
     timer_dict["id"] = timer_id
     timer_dict["expires_at"] = expires_at
     await timer_repo.create_timer(timer_dict)
+    await timer_executor.add_task(timer_task=TimerTask(id=timer_id, url=request.url, expires_at=expires_at))
 
     logger.info(f"Timer with id {timer_id} created")
 

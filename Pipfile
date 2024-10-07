@@ -10,6 +10,8 @@ pydantic = "~=2.9"
 pydantic_settings = "~=2.5.0"
 redis = "~=5.0.0"
 uvicorn = {version = "~=0.30.1", extras = ["standard"]}
+requests = {version = "~=2.32.0"}
+aiohttp = {version = "~=3.10.0"}
 
 [dev-packages]
 pytest = "*"

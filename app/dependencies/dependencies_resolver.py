@@ -4,11 +4,13 @@ from typing import ClassVar, Self
 from app.dependencies.timer_repo_client import get_redis_db_client
 from app.models.settings import AppSettings
 from app.services.redis_timer_repository import RedisTimerRepository
+from app.services.timer_excuter import TimerExecutor
 
 
 @dataclass
 class Dependencies:
     timer_repository: RedisTimerRepository
+    timer_executor: TimerExecutor
 
 
 class DependenciesResolver:
@@ -18,6 +20,7 @@ class DependenciesResolver:
     async def init_dependencies(cls, settings: AppSettings) -> None:
         cls._dependencies = Dependencies(
             timer_repository=RedisTimerRepository(redis_client=get_redis_db_client(settings)),
+            timer_executor=TimerExecutor(),
         )
 
     @classmethod
@@ -29,6 +32,10 @@ class DependenciesResolver:
     @classmethod
     def get_timer_repository(cls) -> RedisTimerRepository:
         return cls._get_deps().timer_repository
+    
+    @classmethod
+    def get_timer_executor(cls) -> TimerExecutor:
+        return cls._get_deps().timer_executor
 
     @classmethod
     async def destroy(cls) -> None:
