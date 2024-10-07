@@ -32,13 +32,15 @@ class DependenciesResolver:
     @classmethod
     def get_timer_repository(cls) -> RedisTimerRepository:
         return cls._get_deps().timer_repository
-    
+
     @classmethod
     def get_timer_executor(cls) -> TimerExecutor:
         return cls._get_deps().timer_executor
 
     @classmethod
     async def destroy(cls) -> None:
+        cls._dependencies.timer_executor.close()
+        cls._dependencies.timer_repository.purge_timers()
         if cls._dependencies is None:
             return
         cls._dependencies = None
