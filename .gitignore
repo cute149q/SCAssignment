@@ -7,3 +7,4 @@ tests/performance/payload/*
 !tests/performance/payload/.gitkeep
 .pytest_cache
 .vscode
+__pycache__/

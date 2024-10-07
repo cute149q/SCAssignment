@@ -51,7 +51,9 @@ class TimerExecutor:
 
     async def create_task(self, timer_task: TimerTask) -> Response:
         url = timer_task.url
-        time_left = timer_task.expires_at.timestamp() - datetime.now(timezone.utc).timestamp()
+        time_left = timer_task.expires_at - datetime.now(timezone.utc).timestamp()
+
+        self.logger.info(f"Timer ID {timer_task.id} will fire in {time_left} seconds")
 
         if time_left > 0:
             await asyncio.sleep(time_left)
@@ -59,11 +61,13 @@ class TimerExecutor:
         response = await self.execute_task(url)
 
         if response.status == 200:
-            self.logger.info(f"Succesfully fired webhook for Timer ID {timer_task.id}")
+            self.logger.info(f"Succesfully fired webhook for Timer ID {timer_task.id}, response: {response.content}")
         elif response:
-            self.logger.error(f"Failed to fire webhook for Timer ID {timer_task.id}, status code: {response.status}")
+            self.logger.error(
+                f"Failed to fire webhook for Timer ID {timer_task.id}, status code: {response.status}, response: {response.content}"
+            )
         else:
-            self.logger.error(f"Failed to fire webhook for Timer ID {timer_task.id}, unknown error")
+            self.logger.error(f"Failed to fire webhook for Timer ID {timer_task.id}, unknown error. ")
         # Cleanup: Remove the task from the tasks dictionary
         self.tasks.pop(timer_task.id, None)
         return response

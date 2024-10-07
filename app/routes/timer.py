@@ -51,9 +51,7 @@ async def set_timer(
     timer_dict["id"] = timer_id
     timer_dict["expires_at"] = expires_at
     await timer_repo.create_timer(timer_dict)
-    await timer_executor.add_task(timer_task=TimerTask(timer_id=timer_id, url=request.url, expires_at=expires_at))
-
-    logger.info(f"Timer with id {timer_id} created")
+    timer_executor.add_task(timer_task=TimerTask(timer_id=timer_id, url=request.url, expires_at=expires_at))
 
     response.status_code = 201
     return ApiResponse(
