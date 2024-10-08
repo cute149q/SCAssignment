@@ -1,37 +1,25 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, HttpUrl
 
 
 class SetTimerRequest(BaseModel):
     hours: int = Field(ge=0)
     minutes: int = Field(ge=0, le=59)
     seconds: int = Field(ge=0, le=59)
-    url: str
-
-    @field_validator("url")
-    def validate_url(cls, value):
-        if not value.startswith("http"):
-            raise ValueError("URL must start with http")
-        return value
+    url: HttpUrl
 
 
 class GetTimerResponse(BaseModel):
     id: str
-    seconds_left: int
+    seconds_remaining: int
 
 
 class TimerTask(BaseModel):
     timer_id: str
-    url: str
-    expires_at: float
+    url: HttpUrl
+    expires_at: datetime
 
     @property
     def id(self):
         return self.timer_id
-
-    @field_validator("url")
-    def validate_url(cls, value):
-        if not value.startswith("http"):
-            raise ValueError("URL must start with http")
-        return value

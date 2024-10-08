@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-from typing import ClassVar, Self
+from typing import ClassVar
 
 from app.dependencies.timer_repo_client import get_redis_db_client
 from app.models.settings import AppSettings
 from app.services.redis_timer_repository import RedisTimerRepository
-from app.services.timer_excuter import TimerExecutor
+from app.services.timer_executor import TimerExecutor
 
 
 @dataclass
@@ -18,9 +18,10 @@ class DependenciesResolver:
 
     @classmethod
     async def init_dependencies(cls, settings: AppSettings) -> None:
+        timer_repo = RedisTimerRepository(redis_client=get_redis_db_client(settings))
         cls._dependencies = Dependencies(
-            timer_repository=RedisTimerRepository(redis_client=get_redis_db_client(settings)),
-            timer_executor=TimerExecutor(),
+            timer_repository=timer_repo,
+            timer_executor=TimerExecutor(timer_repository=timer_repo),
         )
 
     @classmethod
@@ -41,9 +42,7 @@ class DependenciesResolver:
     async def destroy(cls) -> None:
         if cls._dependencies is None:
             return
-        else:
-            if cls._dependencies.timer_executor is not None:
-                cls._dependencies.timer_executor.close()
-            if cls._dependencies.timer_repository is not None:
-                cls._dependencies.timer_repository.purge_timers()
+
+        if cls._dependencies.timer_executor is not None:
+            await cls._dependencies.timer_executor.close()
         cls._dependencies = None

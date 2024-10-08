@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 from contextlib import asynccontextmanager
@@ -19,14 +20,17 @@ class Tag(str, Enum):
 
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # pylint: disable=unused-argument
     app_settings: AppSettings = get_app_settings()
     await DependenciesResolver.init_dependencies(app_settings)
+    await DependenciesResolver.get_timer_executor().start()
+    logger.info("TimerExecutor started")
     yield
-    # Clean up context managers pushed to the exit stack.
+    # Clean up context managers pushed to the exit stack
     await DependenciesResolver.destroy()
 
 
@@ -43,11 +47,6 @@ app = fastapi.FastAPI(
     openapi_url=("/openapi.json" if "ENABLE_DOCS" in os.environ else None),
     lifespan=lifespan,
 )
-
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
 
 
 @app.get(

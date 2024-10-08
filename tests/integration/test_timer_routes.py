@@ -62,7 +62,7 @@ def test_get_timer_request_in_cache(base_url: str) -> None:
     content = json.loads(response.text)
     assert content["errors"] == []
     assert content["data"][0]["id"] == timer_id
-    assert 0 <= content["data"][0]["seconds_left"] <= 15
+    assert 0 <= content["data"][0]["seconds_remaining"] <= 15
 
 
 def test_get_timer_request_not_in_cache(base_url: str) -> None:

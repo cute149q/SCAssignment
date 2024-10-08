@@ -46,7 +46,7 @@ case  ${1:-} in
 
     down)
     echo "Shutting down all containers."
-    docker compose --profile docker_setup down
+    docker compose down
     ;;
 
     help)

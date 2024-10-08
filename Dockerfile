@@ -8,13 +8,12 @@ RUN pipenv install --deploy
 FROM python-deps as test
 WORKDIR /code
 RUN pipenv install --dev --deploy
-COPY ./app ./app
-COPY ./tests ./tests
+COPY ./app /code/app
+COPY ./tests /code/app/tests
 
 FROM public.ecr.aws/docker/library/python:3.11-slim-bookworm as runtime
 WORKDIR /code
 EXPOSE 8000
 COPY --from=python-deps /.venv /.venv
 ENV PATH="/.venv/bin:$PATH"
-COPY ./app ./app
-COPY ./log_config.yaml ./log_config.yaml
+COPY ./app /code/app

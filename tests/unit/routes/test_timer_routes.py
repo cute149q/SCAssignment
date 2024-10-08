@@ -15,7 +15,7 @@ from app.dependencies.timer_repo import (
 from app.main import app
 from app.models.timer import SetTimerRequest
 from app.services.redis_timer_repository import RedisTimerRepository
-from app.services.timer_excuter import TimerExecutor
+from app.services.timer_executor import TimerExecutor
 
 test_client = TestClient(app)
 
@@ -112,7 +112,7 @@ def test_get_timer_succeed(overrides: dict, timer_url: str):
     response_content = json.loads(response.content)["data"][0]
 
     assert response_content["id"] == "11c4dc54-759b-4172-b415-29de0373ffae"
-    assert 45 <= response_content["seconds_left"] <= 50
+    assert 45 <= response_content["seconds_remaining"] <= 50
 
 
 def test_get_timer_not_found(overrides: dict, timer_url: str):

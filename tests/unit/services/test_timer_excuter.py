@@ -5,7 +5,7 @@ from unittest.mock import patch
 import pytest
 
 from app.models.timer import TimerTask
-from app.services.timer_excuter import Response, TimerExecutor, get_response_message
+from app.services.timer_executor import Response, TimerExecutor, get_response_message
 
 
 @pytest.fixture
