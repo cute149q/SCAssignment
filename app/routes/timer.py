@@ -7,7 +7,10 @@ from typing import Any
 from fastapi import APIRouter, Depends, Response
 from pydantic import BaseModel
 
-from app.dependencies.timer_repo import get_timer_executor_service, get_timer_repo_service
+from app.dependencies.timer_repo import (
+    get_timer_executor_service,
+    get_timer_repo_service,
+)
 from app.models.api import ApiResponse, ErrorCode, ErrorResponse
 from app.models.timer import GetTimerResponse, SetTimerRequest, TimerTask
 from app.repositories.timer_repo import TimerRepository
@@ -64,7 +67,7 @@ async def get_timer(
     timer_id: str,
     response: Response,
     timer_repo: TimerRepository = Depends(get_timer_repo_service),
-) -> ApiResponse[GetTimerResponse, Any]:
+) -> ApiResponse[Any, Any]:
     timer = await timer_repo.get_timer(timer_id)
     if not timer:
         response.status_code = 404

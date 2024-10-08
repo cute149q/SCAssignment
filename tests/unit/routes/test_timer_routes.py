@@ -8,7 +8,10 @@ from fastapi.testclient import TestClient
 from freezegun import freeze_time
 from pytest_mock import MockerFixture, MockFixture
 
-from app.dependencies.timer_repo import get_timer_executor_service, get_timer_repo_service
+from app.dependencies.timer_repo import (
+    get_timer_executor_service,
+    get_timer_repo_service,
+)
 from app.main import app
 from app.models.timer import SetTimerRequest
 from app.services.redis_timer_repository import RedisTimerRepository

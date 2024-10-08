@@ -20,9 +20,9 @@ class RedisTimerRepository(TimerRepository):
         stream_handler.setFormatter(log_formatter)
         self.logger.addHandler(stream_handler)
 
-    async def get_timer(self, timer_id: str) -> dict:
+    async def get_timer(self, timer_id: str) -> dict | None:
         self.logger.info(f"Getting timer with id {timer_id}")
-        timer = await self.redis_client.hgetall(f"{TIMER_PREFIX}{timer_id}")
+        timer = await self.redis_client.hgetall(f"{TIMER_PREFIX}{timer_id}")  # type: ignore
         self.logger.info(f"Retrieved timer: {timer}")
         if not timer:
             return None
@@ -31,7 +31,7 @@ class RedisTimerRepository(TimerRepository):
     async def create_timer(self, timer: dict) -> dict:
         timer_id = timer["id"]
         self.logger.info(f"Received timer: {timer}")
-        await self.redis_client.hset(
+        await self.redis_client.hset(  # type: ignore
             f"{TIMER_PREFIX}{timer_id}",
             mapping=timer,
         )

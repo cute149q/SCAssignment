@@ -39,8 +39,11 @@ class DependenciesResolver:
 
     @classmethod
     async def destroy(cls) -> None:
-        cls._dependencies.timer_executor.close()
-        cls._dependencies.timer_repository.purge_timers()
         if cls._dependencies is None:
             return
+        else:
+            if cls._dependencies.timer_executor is not None:
+                cls._dependencies.timer_executor.close()
+            if cls._dependencies.timer_repository is not None:
+                cls._dependencies.timer_repository.purge_timers()
         cls._dependencies = None
