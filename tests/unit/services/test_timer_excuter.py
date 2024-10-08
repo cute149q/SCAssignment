@@ -1,11 +1,7 @@
-import asyncio
-import time
-import unittest
 from datetime import datetime, timedelta, timezone
 from types import coroutine
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import patch
 
-import aiohttp
 import pytest
 
 from app.models.timer import TimerTask
@@ -13,7 +9,6 @@ from app.services.timer_excuter import Response, TimerExecutor, get_response_mes
 
 
 @pytest.fixture
-@pytest.mark.asyncio
 async def timer_executor() -> TimerExecutor:
     return TimerExecutor()
 

@@ -27,6 +27,8 @@ export STAGE=dev
 export TIMER_API_PORT=8000
 export TIMER_API_URL="http://localhost:${TIMER_API_PORT}"
 export PYTHONPATH="$(pwd):${PYTHONPATH:-}"
+export TIMER_REDIS_PORT=6380
+export TIMER_REDIS_URL="http://localhost:${TIMER_REDIS_PORT}"
 
 
 case  ${1:-} in
