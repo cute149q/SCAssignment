@@ -53,8 +53,6 @@ class TimerExecutor:
         self.task = None
 
     async def start(self) -> None:
-        self.logger.info("Starting scheduler")
-
         self.http_session = await self.exit_stack.enter_async_context(aiohttp.ClientSession())
 
         async def _scheduler():
@@ -62,8 +60,6 @@ class TimerExecutor:
                 self.logger.info("Scheduler started")
                 while True:
                     await asyncio.sleep(0.1)
-                    self.logger.info("Checking for scheduled tasks")
-
                     task_id = await self.timer_repository.get_scheduled_task_id()
                     self.logger.info(f"Got task id: {task_id}")
                     if task_id is None:
@@ -92,5 +88,5 @@ class TimerExecutor:
 
     async def close(self):
         if self.task is not None:
-            await self.task.cancel()
+            self.task.cancel()
         await self.exit_stack.aclose()

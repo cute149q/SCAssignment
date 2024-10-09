@@ -46,7 +46,9 @@ class RedisTimerRepository(TimerRepository):
         timer_mapping = {
             timer.timer_id: timer.expires_at.timestamp(),
         }
-        await self.redis_client.zadd(f"{TIMER_PREFIX}task_set", timer_mapping)  # type: ignore
+        response = await self.redis_client.zadd(f"{TIMER_PREFIX}task_set", timer_mapping)  # type: ignore
+        if response == 0:
+            raise Exception("Failed to add timer to task set")
         self.logger.info(f"Added timer to task set: {timer_mapping}")
 
     async def get_scheduled_task_id(self) -> str | None:
