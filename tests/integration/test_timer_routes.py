@@ -72,3 +72,6 @@ def test_get_timer_request_not_in_cache(base_url: str) -> None:
     assert content["errors"] != []
     assert content["errors"][0]["code"] == ErrorCode.NOT_FOUND
     assert content["errors"][0]["message"] == "Timer with id 1 not found"
+
+
+

@@ -75,6 +75,8 @@ async def get_timer(
         )
 
     seconds_remaining = (timer.expires_at - datetime.now(timezone.utc)).total_seconds()
+    if seconds_remaining <= 0:
+        seconds_remaining = 0
     return ApiResponse(
         data=[GetTimerResponse(id=timer_id, seconds_remaining=int(seconds_remaining))],
     )

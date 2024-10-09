@@ -32,7 +32,7 @@ class RedisTimerRepository(TimerRepository):
 
     async def delete_timer(self, timer_id: str) -> TimerTask | None:
         await self.redis_client.zrem(f"{TIMER_PREFIX}task_set", timer_id)  # type: ignore
-        timer_json = await self.redis_client.getdel(f"{TIMER_PREFIX}{timer_id}")  # type: ignore
+        timer_json = await self.redis_client.get(f"{TIMER_PREFIX}{timer_id}")  # type: ignore
         if timer_json is None:
             return None
         return TimerTask.model_validate_json(timer_json)

@@ -61,11 +61,10 @@ class TimerExecutor:
                 while True:
                     await asyncio.sleep(0.1)
                     task_id = await self.timer_repository.get_scheduled_task_id()
-                    self.logger.info(f"Got task id: {task_id}")
                     if task_id is None:
                         continue
                     task = await self.timer_repository.delete_timer(task_id)
-                    self.logger.info(f"Got task: {task}")
+                    self.logger.info(f"Got task: {task}, and deleting it")
                     if task is None:
                         continue
                     await self.execute_task(str(task.url))
