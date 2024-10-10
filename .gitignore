@@ -8,4 +8,4 @@ tests/performance/payload/*
 .pytest_cache
 .vscode
 __pycache__/
-.my_cache/
+.mypy_cache/
