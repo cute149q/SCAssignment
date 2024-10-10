@@ -7,7 +7,10 @@ from typing import Any
 from fastapi import APIRouter, Depends, Response
 from pydantic import BaseModel
 
-from app.dependencies.timer_repo import get_timer_executor_service, get_timer_repo_service
+from app.dependencies.timer_repo import (
+    get_timer_executor_service,
+    get_timer_repo_service,
+)
 from app.models.api import ApiResponse, ErrorCode, ErrorResponse
 from app.models.timer import GetTimerResponse, SetTimerRequest, TimerTask
 from app.repositories.timer_repo import TimerRepository
@@ -47,12 +50,12 @@ async def set_timer(
 
     expires_at = datetime.now(timezone.utc).timestamp() + total_seconds
 
-    timer = TimerTask(timer_id=timer_id, url=request.url, expires_at=expires_at)
+    timer = TimerTask(timer_id=timer_id, url=request.url, expires_at=datetime.fromtimestamp(expires_at, timezone.utc))
     await timer_repo.create_timer(timer)
 
     response.status_code = 201
     return ApiResponse(
-        data=[{"id": timer_id, "expires_at": datetime.fromtimestamp(expires_at, tz=timezone.utc).isoformat()}],
+        data=[{"id": timer_id, "time_left": total_seconds}],
     )
 
 
@@ -78,11 +81,11 @@ async def get_timer(
     timer = timer if timer else timer_excuted
 
     seconds_remaining = (
-        (timer.expires_at - datetime.now(timezone.utc)).total_seconds()
-        if timer.expires_at > datetime.now(timezone.utc)
+        (timer.expires_at - datetime.now(timezone.utc)).total_seconds()  # type: ignore
+        if timer.expires_at > datetime.now(timezone.utc)  # type: ignore
         else 0
     )
 
     return ApiResponse(
-        data=[GetTimerResponse(id=timer_id, seconds_remaining=int(seconds_remaining))],
+        data=[GetTimerResponse(id=timer_id, time_left=int(seconds_remaining))],
     )

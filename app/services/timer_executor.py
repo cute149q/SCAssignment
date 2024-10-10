@@ -67,19 +67,19 @@ class TimerExecutor:
                     self.logger.info(f"Got task: {task}, and deleting it")
                     if task is None:
                         continue
-                    await self.execute_task(str(task.url))
+                    await self.execute_task(str(task.url, task.timer_id))
                     await self.timer_repository.add_executed_task(task)
             except asyncio.CancelledError:
                 self.logger.info("Stopping scheduler")
 
-        self.task = asyncio.create_task(_scheduler())
+        self.task = asyncio.create_task(_scheduler())  # type: ignore
 
-    async def execute_task(self, url: str) -> None:
+    async def execute_task(self, url: str, timer_id: str) -> None:
         self.logger.info(f"Executing task for url {url}")
         try:
             self.logger.info(f"Sending request to {url}")
             timeout = aiohttp.ClientTimeout(total=MAX_TIMEOUT_SECONDS)
-            async with self.http_session.get(url, timeout=timeout) as response:
+            async with self.http_session.post(url, json={"id": timer_id}, timeout=timeout) as response:
                 self.logger.info(f"Executed task for url {url}")
                 self.logger.info(f"Response status: {response.status}")
                 self.logger.info(f"Response content: {await response.text()}")

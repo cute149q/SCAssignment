@@ -12,7 +12,7 @@ class SetTimerRequest(BaseModel):
 
 class GetTimerResponse(BaseModel):
     id: str
-    seconds_remaining: int
+    time_left: int
 
 
 class TimerTask(BaseModel):

@@ -20,7 +20,7 @@ def clean_timer_redis_cache(redis_client: Redis):
 
 
 def test_post_timer_request(base_url: str, httpserver: HTTPServer) -> None:
-    httpserver.expect_request("/").respond_with_data("OK")
+    httpserver.expect_request("/", method="post").respond_with_data("OK")
     set_timer_request = SetTimerRequest(
         hours=0,
         minutes=0,
@@ -32,12 +32,7 @@ def test_post_timer_request(base_url: str, httpserver: HTTPServer) -> None:
     assert response.status_code == 201
     content = json.loads(response.text)
     assert content["errors"] == []
-    assert (
-        10
-        <= datetime.fromisoformat(content["data"][0]["expires_at"]).timestamp() - datetime.now(timezone.utc).timestamp()
-        <= 15
-    )
-
+    assert 10 <= content["data"][0]["time_left"] <= 15
     httpserver.check_assertions()
 
 
@@ -54,11 +49,7 @@ def test_get_timer_request_in_cache(base_url: str) -> None:
     assert response.status_code == 201
     content = json.loads(response.text)
     assert content["errors"] == []
-    assert (
-        10
-        <= datetime.fromisoformat(content["data"][0]["expires_at"]).timestamp() - datetime.now(timezone.utc).timestamp()
-        <= 15
-    )
+    assert 10 <= content["data"][0]["time_left"] <= 15
     # Get the timer
     timer_id = content["data"][0]["id"]
     response = requests.get(f"{base_url}/timer/{timer_id}")
@@ -66,7 +57,7 @@ def test_get_timer_request_in_cache(base_url: str) -> None:
     content = json.loads(response.text)
     assert content["errors"] == []
     assert content["data"][0]["id"] == timer_id
-    assert 0 <= content["data"][0]["seconds_remaining"] <= 15
+    assert 0 <= content["data"][0]["time_left"] <= 15
 
 
 def test_get_timer_request_not_in_cache(base_url: str) -> None:
@@ -87,19 +78,12 @@ def test_get_timer_request_expired(base_url: str) -> None:
         url="https://example.com",
     )
     response = requests.post(f"{base_url}/timer", json=jsonable_encoder(set_timer_request))
+    timer_id = response.json()["data"][0]["id"]
     time.sleep(2)
-    assert response.status_code == 201
-    content = json.loads(response.text)
-    assert content["errors"] == []
-    assert (
-        0
-        >= datetime.fromisoformat(content["data"][0]["expires_at"]).timestamp() - datetime.now(timezone.utc).timestamp()
-    )  # check if the timer has expired
-    # Get the timer
-    timer_id = content["data"][0]["id"]
     response = requests.get(f"{base_url}/timer/{timer_id}")
+
     assert response.status_code == 200
     content = json.loads(response.text)
     assert content["errors"] == []
     assert content["data"][0]["id"] == timer_id
-    assert content["data"][0]["seconds_remaining"] == 0
+    assert content["data"][0]["time_left"] == 0

@@ -7,7 +7,10 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.testclient import TestClient
 from pytest_mock import MockFixture
 
-from app.dependencies.timer_repo import get_timer_executor_service, get_timer_repo_service
+from app.dependencies.timer_repo import (
+    get_timer_executor_service,
+    get_timer_repo_service,
+)
 from app.main import app
 from app.models.timer import SetTimerRequest, TimerTask
 from app.services.redis_timer_repository import RedisTimerRepository
@@ -67,9 +70,9 @@ def test_set_timer(overrides: dict, timer_url: str):
     assert response.status_code == 201
     response_content = json.loads(response.content)["data"][0]
 
-    expires_at = datetime.fromisoformat(response_content["expires_at"]).timestamp()
+    time_left = response_content["time_left"]
 
-    assert 3570 <= expires_at - datetime.now(timezone.utc).timestamp() <= 3600
+    assert 3570 <= time_left <= 3600
 
     timer_repo_service_mock.create_timer.assert_called_once()
 
@@ -106,12 +109,13 @@ def test_get_timer_succeed(overrides: dict, timer_url: str):
     response_content = json.loads(response.content)["data"][0]
 
     assert response_content["id"] == "11c4dc54-759b-4172-b415-29de0373ffae"
-    assert 45 <= response_content["seconds_remaining"] <= 50
+    assert 45 <= response_content["time_left"] <= 50
 
 
 def test_get_timer_not_found(overrides: dict, timer_url: str):
     timer_repo_service_mock = overrides[get_timer_repo_service]()
     timer_repo_service_mock.get_timer.return_value = None
+    timer_repo_service_mock.get_executed_task.return_value = None
 
     response = test_client.get(f"{timer_url}/11c4dc54-759b-4172-b415-29de0373ffae")
 
@@ -120,3 +124,22 @@ def test_get_timer_not_found(overrides: dict, timer_url: str):
 
     assert response_content["code"] == "not_found"
     assert response_content["message"] == "Timer with id 11c4dc54-759b-4172-b415-29de0373ffae not found"
+
+
+def test_get_timer_expired(overrides: dict, timer_url: str):
+    timer_repo_service_mock = overrides[get_timer_repo_service]()
+    time_stamp = datetime.now(timezone.utc).timestamp()
+    timer_repo_service_mock.get_timer.return_value = None
+    timer_repo_service_mock.get_executed_task.return_value = TimerTask(
+        timer_id="11c4dc54-759b-4172-b415-29de0373ffae",
+        url="http://example.com",
+        expires_at=time_stamp - 50,
+    )
+
+    response = test_client.get(f"{timer_url}/11c4dc54-759b-4172-b415-29de0373ffae")
+
+    assert response.status_code == 200
+    response_content = json.loads(response.content)["data"][0]
+
+    assert response_content["id"] == "11c4dc54-759b-4172-b415-29de0373ffae"
+    assert response_content["time_left"] == 0

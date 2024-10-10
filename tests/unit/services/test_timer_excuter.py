@@ -72,9 +72,9 @@ async def test_timer_executor_execute_task(timer_executor):
     timer_executor.timer_repository.get_timer.return_value = timer
 
     await timer_executor.start()
-    with patch("aiohttp.ClientSession.get") as mock:
+    with patch("aiohttp.ClientSession.post") as mock:
         mock.return_value.__aenter__.return_value.status = 200
-        await timer_executor.execute_task(url=str(timer.url))
+        await timer_executor.execute_task(url=str(timer.url), timer_id=timer.timer_id)
         assert mock.called
 
 
@@ -91,9 +91,9 @@ async def test_timer_executor_execute_task_exception(timer_executor):
     timer_executor.logger.error = AsyncMock()
 
     await timer_executor.start()
-    with patch("aiohttp.ClientSession.get") as mock:
+    with patch("aiohttp.ClientSession.post") as mock:
         mock.side_effect = aiohttp.ClientError("Failed to get")
-        await timer_executor.execute_task(url=str(timer.url))
+        await timer_executor.execute_task(url=str(timer.url), timer_id=timer.timer_id)
         assert mock.called
         assert timer_executor.logger.error.called
 
