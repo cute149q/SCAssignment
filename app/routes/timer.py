@@ -63,7 +63,8 @@ async def get_timer(
     timer_repo: TimerRepository = Depends(get_timer_repo_service),
 ) -> ApiResponse[Any, Any]:
     timer = await timer_repo.get_timer(timer_id)
-    if not timer:
+    timer_excuted = await timer_repo.get_executed_task(timer_id)
+    if not timer and not timer_excuted:
         response.status_code = 404
         return ApiResponse(
             errors=[
@@ -74,9 +75,14 @@ async def get_timer(
             ]
         )
 
-    seconds_remaining = (timer.expires_at - datetime.now(timezone.utc)).total_seconds()
-    if seconds_remaining <= 0:
-        seconds_remaining = 0
+    timer = timer if timer else timer_excuted
+
+    seconds_remaining = (
+        (timer.expires_at - datetime.now(timezone.utc)).total_seconds()
+        if timer.expires_at > datetime.now(timezone.utc)
+        else 0
+    )
+
     return ApiResponse(
         data=[GetTimerResponse(id=timer_id, seconds_remaining=int(seconds_remaining))],
     )

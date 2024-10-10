@@ -68,6 +68,7 @@ class TimerExecutor:
                     if task is None:
                         continue
                     await self.execute_task(str(task.url))
+                    await self.timer_repository.add_executed_task(task)
             except asyncio.CancelledError:
                 self.logger.info("Stopping scheduler")
 
